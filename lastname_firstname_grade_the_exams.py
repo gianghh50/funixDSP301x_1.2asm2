@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore")
 
 
 answer_key = "B,A,D,D,C,B,D,A,C,C,D,B,A,B,A,C,B,D,A,C,A,A,B,D,D"
-
+#Kiểm tra dòng đã đúng format hay chưa
 def checkValidLine(_line,df):
     list_lines = _line.split(',')
     if not len(list_lines) == 26:
@@ -18,7 +18,7 @@ def checkValidLine(_line,df):
             return False, "N# is invalid"
         df[list_lines[0]] = list_lines[1:]
         return True,None
-
+#Chấm điểm
 def checkMark(_line):
     mark = 0
     list_lines = _line.split(',')
@@ -37,6 +37,8 @@ def process(file):
     students = file.readlines()
     valid_lines = 0
     invalid_lines = 0
+
+    #Xác định các dòng bị lỗi và in ra nếu có
     for student in students:
         isValid, message = checkValidLine(student,df)
         if not isValid:
@@ -53,7 +55,7 @@ def process(file):
 
     writter = open(file.name.replace('.txt','_grades.txt'),'w')
 
-
+    #Chấm điểm
     list_mark = np.empty((0,), dtype=int)
     high_scores = 0
     highest_score = 0
@@ -78,7 +80,8 @@ def process(file):
     print('Range of scores: ' + str(highest_score - lowest_score) + '\n')
     print('Median score: ' + str(np.median(list_mark)) + '\n')
     
-
+    #Đưa đáp án và bài làm của học sinh vào dataFrame để tiến hành lọc
+    #1. Lọc kết quả bỏ trống
     counts_skips = df.apply(lambda row: row == '').sum(axis=1)
     max_counts_skips = counts_skips.max()
     rows_with_max_counts_skips = df[counts_skips == max_counts_skips]
@@ -89,7 +92,7 @@ def process(file):
         _skip = _skip + str(row + 1) + ' - ' +  str(max_counts_skips) + ' - ' + str(round(max_counts_skips/valid_lines,2))
     print('Question that most people skip: ' + _skip + '\n')
 
-
+    #2. Lọc kết quả sai
     df_temp = df.apply(lambda row: (row != row.iloc[0]), axis=1).sum(axis=1)
     count_wrongs = df_temp - counts_skips
     max_counts_wrongs = count_wrongs.max()
